@@ -1,4 +1,3 @@
-/*
 MIT License
 
 Copyright (c) 2016 Eren Okka
@@ -20,23 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-#ifndef TAIGA_BASE_STRING_H
-#define TAIGA_BASE_STRING_H
-
-#include <string>
-#include <vector>
-
-int CompareStrings(const std::wstring& str1, const std::wstring& str2, bool case_insensitive, size_t max_count);
-
-bool IsNumericChar(const wchar_t c);
-bool IsNumericString(const std::wstring& str);
-
-void Split(const std::wstring& str, const std::wstring& separator, std::vector<std::wstring>& split_vector);
-
-int ToInt(const std::wstring& str);
-
-std::wstring ToWstr(const unsigned int& value);
-
-#endif  // TAIGA_BASE_STRING_H
