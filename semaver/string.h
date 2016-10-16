@@ -22,8 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef TAIGA_BASE_STRING_H
-#define TAIGA_BASE_STRING_H
+#pragma once
+
+namespace semaver {
 
 #include <string>
 #include <vector>
@@ -39,4 +40,4 @@ int ToInt(const std::wstring& str);
 
 std::wstring ToWstr(const unsigned int& value);
 
-#endif  // TAIGA_BASE_STRING_H
+}  // namespace semaver

@@ -22,14 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef TAIGA_BASE_VERSION_H
-#define TAIGA_BASE_VERSION_H
+#pragma once
 
 #include <string>
 
 #include "comparable.h"
 
-namespace base {
+namespace semaver {
 
 // An implementation of Semantic Versioning 2.0.0 that provides an easy way
 // to compare version numbers.
@@ -71,6 +70,4 @@ private:
   void Parse(const string_t& version);
 };
 
-}  // namespace base
-
-#endif  // TAIGA_BASE_VERSION_H
+}  // namespace semaver

@@ -22,10 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef TAIGA_BASE_COMPARE_H
-#define TAIGA_BASE_COMPARE_H
+#pragma once
 
-namespace base {
+namespace semaver {
 
 enum CompareResult {
   kLessThan = -1,
@@ -59,6 +58,4 @@ private:
   virtual CompareResult Compare(const T& rhs) const = 0;
 };
 
-}  // namespace base
-
-#endif  // TAIGA_BASE_COMPARE_H
+}  // namespace semaver

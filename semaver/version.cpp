@@ -28,7 +28,7 @@ SOFTWARE.
 #include "string.h"
 #include "version.h"
 
-namespace base {
+namespace semaver {
 
 SemanticVersion::SemanticVersion()
     : major(1), minor(0), patch(0) {
@@ -142,4 +142,4 @@ void SemanticVersion::Parse(const string_t& version) {
     build_metadata = identifiers.at(4);
 }
 
-}  // namespace base
+}  // namespace semaver
