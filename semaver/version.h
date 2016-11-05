@@ -40,7 +40,7 @@ const std::string regex_pattern{
 };
 
 // Semantic Versioning 2.0.0 - http://semver.org
-class SemanticVersion : public Comparable<SemanticVersion> {
+class Version : public Comparable<Version> {
 public:
   enum NumericIdentifier {
     kMajor,
@@ -48,19 +48,19 @@ public:
     kPatch,
   };
 
-  SemanticVersion() {}
-  SemanticVersion(unsigned long major, unsigned long minor, unsigned long patch);
-  SemanticVersion(const std::string& version);
-  ~SemanticVersion() {}
+  Version() {}
+  Version(unsigned long major, unsigned long minor, unsigned long patch);
+  Version(const std::string& version);
+  ~Version() {}
 
-  SemanticVersion& operator=(const SemanticVersion& version);
+  Version& operator=(const Version& version);
 
   operator std::string() const;
   std::string str() const;
 
   // Increments given numeric identifier by given number, and resets lesser
   // identifiers to 0.
-  void Increment(NumericIdentifier identifier, unsigned long n = 1);
+  void Increment(NumericIdentifier id, unsigned long n = 1);
 
   unsigned long major = 0;
   unsigned long minor = 1;
@@ -70,7 +70,7 @@ public:
   std::string build_metadata;
 
 private:
-  CompareResult Compare(const SemanticVersion& version) const;
+  CompareResult Compare(const Version& version) const;
   bool Parse(const std::string& version);
 };
 

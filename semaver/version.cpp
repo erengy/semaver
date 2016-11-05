@@ -26,22 +26,20 @@ SOFTWARE.
 #include <regex>
 #include <vector>
 
-#include "version.h"
 #include "string.h"
+#include "version.h"
 
 namespace semaver {
 
-SemanticVersion::SemanticVersion(unsigned long major,
-                                 unsigned long minor,
-                                 unsigned long patch)
+Version::Version(unsigned long major, unsigned long minor, unsigned long patch)
     : major(major), minor(minor), patch(patch) {
 }
 
-SemanticVersion::SemanticVersion(const std::string& version) {
+Version::Version(const std::string& version) {
   Parse(version);
 }
 
-SemanticVersion& SemanticVersion::operator=(const SemanticVersion& version) {
+Version& Version::operator=(const Version& version) {
   major = version.major;
   minor = version.minor;
   patch = version.patch;
@@ -52,11 +50,11 @@ SemanticVersion& SemanticVersion::operator=(const SemanticVersion& version) {
   return *this;
 }
 
-SemanticVersion::operator std::string() const {
+Version::operator std::string() const {
   return str();
 }
 
-std::string SemanticVersion::str() const {
+std::string Version::str() const {
   // A normal version number MUST take the form X.Y.Z
   std::string version = NumberToString(major) + "." +
                         NumberToString(minor) + "." +
@@ -73,11 +71,11 @@ std::string SemanticVersion::str() const {
   return version;
 }
 
-void SemanticVersion::Increment(NumericIdentifier identifier, unsigned long n) {
+void Version::Increment(NumericIdentifier id, unsigned long n) {
   if (n == 0)
     return;  // to avoid invalid resets
 
-  switch (identifier) {
+  switch (id) {
     // Patch and minor version MUST be reset to 0 when major version is
     // incremented
     case kMajor:
@@ -97,7 +95,7 @@ void SemanticVersion::Increment(NumericIdentifier identifier, unsigned long n) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CompareResult SemanticVersion::Compare(const SemanticVersion& version) const {
+CompareResult Version::Compare(const Version& version) const {
   // Major, minor, and patch versions are compared numerically
   if (major != version.major)
     return major < version.major ? kLessThan : kGreaterThan;
@@ -157,7 +155,7 @@ CompareResult SemanticVersion::Compare(const SemanticVersion& version) const {
   return kEqualTo;
 }
 
-bool SemanticVersion::Parse(const std::string& version) {
+bool Version::Parse(const std::string& version) {
   static const auto regex = std::regex(regex_pattern);
   std::smatch match;
 
