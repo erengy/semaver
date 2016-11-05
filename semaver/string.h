@@ -24,20 +24,20 @@ SOFTWARE.
 
 #pragma once
 
-namespace semaver {
-
 #include <string>
 #include <vector>
 
-int CompareStrings(const std::wstring& str1, const std::wstring& str2, bool case_insensitive, size_t max_count);
+namespace semaver {
 
-bool IsNumericChar(const wchar_t c);
-bool IsNumericString(const std::wstring& str);
+bool IsNumericChar(const char c);
+bool IsNumericString(const std::string& str);
 
-void Split(const std::wstring& str, const std::wstring& separator, std::vector<std::wstring>& split_vector);
+int CompareStrings(const std::string& str1, const std::string& str2);
 
-int ToInt(const std::wstring& str);
+std::string NumberToString(unsigned long number);
+unsigned long StringToNumber(const std::string& str);
 
-std::wstring ToWstr(const unsigned int& value);
+std::vector<std::string> SplitString(const std::string& str,
+                                     const std::string& delimiter);
 
 }  // namespace semaver

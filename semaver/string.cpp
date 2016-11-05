@@ -28,52 +28,51 @@ SOFTWARE.
 
 #include "string.h"
 
-using std::vector;
-using std::wstring;
+namespace semaver {
 
-int CompareStrings(const wstring& str1, const wstring& str2,
-                   bool case_insensitive, size_t max_count) {
-  if (case_insensitive) {
-    return _wcsnicmp(str1.c_str(), str2.c_str(), max_count);
-  } else {
-    return wcsncmp(str1.c_str(), str2.c_str(), max_count);
-  }
+bool IsNumericChar(const char c) {
+  return c >= '0' && c <= '9';
 }
 
-bool IsNumericChar(const wchar_t c) {
-  return c >= L'0' && c <= L'9';
-}
-bool IsNumericString(const wstring& str) {
+bool IsNumericString(const std::string& str) {
   return !str.empty() &&
          std::all_of(str.begin(), str.end(), IsNumericChar);
 }
 
-void Split(const wstring& str, const wstring& separator,
-           vector<wstring>& split_vector) {
-  if (separator.empty()) {
-    split_vector.push_back(str);
-    return;
+////////////////////////////////////////////////////////////////////////////////
+
+int CompareStrings(const std::string& str1, const std::string& str2) {
+  return str1.compare(str2);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string NumberToString(unsigned long number) {
+  return std::to_string(number);
+}
+
+unsigned long StringToNumber(const std::string& str) {
+  return std::stoul(str);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::vector<std::string> SplitString(const std::string& str,
+                                     const std::string& delimiter) {
+  std::vector<std::string> output;
+
+  size_t offset = 0;
+  while (true) {
+    const size_t pos = str.find(delimiter, offset);
+    if (pos == std::string::npos) {
+      output.push_back(str.substr(offset));
+      break;
+    }
+    output.push_back(str.substr(offset, pos - offset));
+    offset = pos + delimiter.size();
   }
 
-  size_t index_begin = 0, index_end;
-
-  do {
-    index_end = str.find(separator, index_begin);
-    if (index_end == wstring::npos)
-      index_end = str.length();
-
-    split_vector.push_back(str.substr(index_begin, index_end - index_begin));
-
-    index_begin = index_end + separator.length();
-  } while (index_begin <= str.length());
+  return output;
 }
 
-int ToInt(const wstring& str) {
-  return _wtoi(str.c_str());
-}
-
-wstring ToWstr(const unsigned int& value) {
-  wchar_t buffer[65];
-  _ultow_s(value, buffer, 65, 10);
-  return wstring(buffer);
-}
+}  // namespace semaver

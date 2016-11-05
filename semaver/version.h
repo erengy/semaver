@@ -25,49 +25,53 @@ SOFTWARE.
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "comparable.h"
 
 namespace semaver {
 
-// An implementation of Semantic Versioning 2.0.0 that provides an easy way
-// to compare version numbers.
-//
-// See http://semver.org for Semantic Versioning Specification.
+const std::string regex_pattern{
+  "(0|[1-9][0-9]*)\\."
+  "(0|[1-9][0-9]*)\\."
+  "(0|[1-9][0-9]*)"
+  "(?:\\-([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
+  "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
+};
 
+// Semantic Versioning 2.0.0 - http://semver.org
 class SemanticVersion : public Comparable<SemanticVersion> {
 public:
-  typedef unsigned int numeric_identifier_t;
-  typedef std::wstring string_t;
-
-  enum Version {
+  enum NumericIdentifier {
     kMajor,
     kMinor,
     kPatch,
-    kPreRelease,
-    kBuildMetadata
   };
 
-  SemanticVersion();
-  SemanticVersion(const string_t& version);
-  SemanticVersion(numeric_identifier_t major,
-                  numeric_identifier_t minor,
-                  numeric_identifier_t patch);
+  SemanticVersion() {}
+  SemanticVersion(unsigned long major, unsigned long minor, unsigned long patch);
+  SemanticVersion(const std::string& version);
   ~SemanticVersion() {}
 
-  SemanticVersion& operator = (const SemanticVersion& version);
+  SemanticVersion& operator=(const SemanticVersion& version);
 
-  operator string_t() const;
+  operator std::string() const;
+  std::string str() const;
 
-  numeric_identifier_t major;
-  numeric_identifier_t minor;
-  numeric_identifier_t patch;
-  string_t prerelease_identifiers;
-  string_t build_metadata;
+  // Increments given numeric identifier by given number, and resets lesser
+  // identifiers to 0.
+  void Increment(NumericIdentifier identifier, unsigned long n = 1);
+
+  unsigned long major = 0;
+  unsigned long minor = 1;
+  unsigned long patch = 0;
+
+  std::string prerelease_identifiers;
+  std::string build_metadata;
 
 private:
   CompareResult Compare(const SemanticVersion& version) const;
-  void Parse(const string_t& version);
+  bool Parse(const std::string& version);
 };
 
 }  // namespace semaver

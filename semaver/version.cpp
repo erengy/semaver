@@ -23,26 +23,22 @@ SOFTWARE.
 */
 
 #include <algorithm>
+#include <regex>
 #include <vector>
 
-#include "string.h"
 #include "version.h"
+#include "string.h"
 
 namespace semaver {
 
-SemanticVersion::SemanticVersion()
-    : major(1), minor(0), patch(0) {
-}
-
-SemanticVersion::SemanticVersion(const string_t& version)
-    : major(1), minor(0), patch(0) {
-  Parse(version);
-}
-
-SemanticVersion::SemanticVersion(numeric_identifier_t major,
-                                 numeric_identifier_t minor,
-                                 numeric_identifier_t patch)
+SemanticVersion::SemanticVersion(unsigned long major,
+                                 unsigned long minor,
+                                 unsigned long patch)
     : major(major), minor(minor), patch(patch) {
+}
+
+SemanticVersion::SemanticVersion(const std::string& version) {
+  Parse(version);
 }
 
 SemanticVersion& SemanticVersion::operator=(const SemanticVersion& version) {
@@ -56,21 +52,53 @@ SemanticVersion& SemanticVersion::operator=(const SemanticVersion& version) {
   return *this;
 }
 
-SemanticVersion::operator string_t() const {
-  string_t version = ToWstr(major) + L"." +
-                     ToWstr(minor) + L"." +
-                     ToWstr(patch);
+SemanticVersion::operator std::string() const {
+  return str();
+}
+
+std::string SemanticVersion::str() const {
+  // A normal version number MUST take the form X.Y.Z
+  std::string version = NumberToString(major) + "." +
+                        NumberToString(minor) + "." +
+                        NumberToString(patch);
+
+  // A pre-release version MAY be denoted by appending a hyphen
   if (!prerelease_identifiers.empty())
-    version += L"-" + prerelease_identifiers;
+    version += "-" + prerelease_identifiers;
+
+  // Build metadata MAY be denoted by appending a plus sign
   if (!build_metadata.empty())
-    version += L"+" + build_metadata;
+    version += "+" + build_metadata;
 
   return version;
+}
+
+void SemanticVersion::Increment(NumericIdentifier identifier, unsigned long n) {
+  if (n == 0)
+    return;  // to avoid invalid resets
+
+  switch (identifier) {
+    // Patch and minor version MUST be reset to 0 when major version is
+    // incremented
+    case kMajor:
+      major += n; minor = 0; patch = 0;
+      break;
+
+    // Patch version MUST be reset to 0 when minor version is incremented
+    case kMinor:
+      minor += n; patch = 0;
+      break;
+
+    case kPatch:
+      patch += n;
+      break;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CompareResult SemanticVersion::Compare(const SemanticVersion& version) const {
+  // Major, minor, and patch versions are compared numerically
   if (major != version.major)
     return major < version.major ? kLessThan : kGreaterThan;
   if (minor != version.minor)
@@ -79,67 +107,74 @@ CompareResult SemanticVersion::Compare(const SemanticVersion& version) const {
     return patch < version.patch ? kLessThan : kGreaterThan;
 
   if (prerelease_identifiers != version.prerelease_identifiers) {
-    if (prerelease_identifiers.empty() &&
-        !version.prerelease_identifiers.empty())
-      return kGreaterThan;
-    if (!prerelease_identifiers.empty() &&
-        version.prerelease_identifiers.empty())
-      return kLessThan;
+    // A pre-release version has lower precedence than a normal version
+    if (!prerelease_identifiers.empty()) {
+      if (version.prerelease_identifiers.empty())
+        return kLessThan;
+    } else {
+      if (!version.prerelease_identifiers.empty())
+        return kGreaterThan;
+    }
 
-    std::vector<string_t> identifiers_, identifiers;
-    Split(prerelease_identifiers, L".", identifiers_);
-    Split(version.prerelease_identifiers, L".", identifiers);
+    // Precedence for two pre-release versions MUST be determined by comparing
+    // each dot separated identifier from left to right
+    const auto lhs_ids = SplitString(prerelease_identifiers, ".");
+    const auto rhs_ids = SplitString(version.prerelease_identifiers, ".");
 
-    size_t min_size = std::min(identifiers_.size(), identifiers.size());
-    for (size_t i = 0; i < min_size; ++i) {
-      if (IsNumericString(identifiers_.at(i)) &&
-          IsNumericString(identifiers.at(i))) {
-        int lhs = ToInt(identifiers_.at(i));
-        int rhs = ToInt(identifiers.at(i));
-        if (lhs != rhs)
-          return lhs < rhs ? kLessThan : kGreaterThan;
-      } else {
-        int result = CompareStrings(identifiers_.at(i), identifiers.at(i), false, 260);
+    for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
+      const auto& lhs = lhs_ids.at(i);
+      const auto& rhs = rhs_ids.at(i);
+
+      const bool lhs_is_numeric = IsNumericString(lhs);
+      const bool rhs_is_numeric = IsNumericString(rhs);
+
+      // Identifiers consisting of only digits are compared numerically
+      if (lhs_is_numeric && rhs_is_numeric) {
+        const auto lhs_number = StringToNumber(lhs);
+        const auto rhs_number = StringToNumber(rhs);
+        if (lhs_number != rhs_number)
+          return lhs_number < rhs_number ? kLessThan : kGreaterThan;
+
+      // Identifiers with letters or hyphens are compared lexically
+      } else if (!lhs_is_numeric && !rhs_is_numeric) {
+        const auto result = CompareStrings(lhs, rhs);
         if (result != 0)
           return result < 0 ? kLessThan : kGreaterThan;
+
+      // Numeric identifiers have lower precedence than non-numeric identifiers
+      } else {
+        return lhs_is_numeric ? kLessThan : kGreaterThan;
       }
     }
 
-    if (identifiers_.size() != identifiers.size())
-      return identifiers_.size() < identifiers.size() ?
-          kLessThan : kGreaterThan;
+    // A larger set of pre-release fields has a higher precedence than a
+    // smaller set
+    if (lhs_ids.size() != rhs_ids.size())
+      return lhs_ids.size() < rhs_ids.size() ? kLessThan : kGreaterThan;
   }
 
+  // Build metadata SHOULD be ignored when determining version precedence
   return kEqualTo;
 }
 
-void SemanticVersion::Parse(const string_t& version) {
-  std::vector<string_t> identifiers;
-  std::wstring last_one;
+bool SemanticVersion::Parse(const std::string& version) {
+  static const auto regex = std::regex(regex_pattern);
+  std::smatch match;
 
-  Split(version, L".", identifiers);
+  if (!std::regex_match(version, match, regex))
+    return false;
 
-  if (identifiers.empty())
-    return;
+  major = StringToNumber(match[1].str());
+  minor = StringToNumber(match[2].str());
+  patch = StringToNumber(match[3].str());
 
-  last_one = identifiers.back();
-  identifiers.pop_back();
-  Split(last_one, L"-", identifiers);
+  if (match[4].matched)
+    prerelease_identifiers = match[4].str();
 
-  last_one = identifiers.back();
-  identifiers.pop_back();
-  Split(last_one, L"+", identifiers);
+  if (match[5].matched)
+    build_metadata = match[5].str();
 
-  if (identifiers.size() > 0)
-    major = ToInt(identifiers.at(0));
-  if (identifiers.size() > 1)
-    minor = ToInt(identifiers.at(1));
-  if (identifiers.size() > 2)
-    patch = ToInt(identifiers.at(2));
-  if (identifiers.size() > 3)
-    prerelease_identifiers = identifiers.at(3);
-  if (identifiers.size() > 4)
-    build_metadata = identifiers.at(4);
+  return true;
 }
 
 }  // namespace semaver

@@ -38,17 +38,17 @@ public:
   bool operator==(const T& rhs) const {
     return Compare(rhs) == kEqualTo;
   }
-  bool operator!=(const T& rhs) const {
-    return !operator==(rhs);
-  }
   bool operator<(const T& rhs) const {
     return Compare(rhs) == kLessThan;
   }
-  bool operator<=(const T& rhs) const {
-    return !operator>(rhs);
-  }
   bool operator>(const T& rhs) const {
     return Compare(rhs) == kGreaterThan;
+  }
+  bool operator!=(const T& rhs) const {
+    return !operator==(rhs);
+  }
+  bool operator<=(const T& rhs) const {
+    return !operator>(rhs);
   }
   bool operator>=(const T& rhs) const {
     return !operator<(rhs);
