@@ -197,23 +197,23 @@ void test_increment_limits() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void test_serialize() {
-  assert(sv(0, 0, 1).str() == "0.0.1");
-  assert(sv(0, 1, 0).str() == "0.1.0");
-  assert(sv(1, 0, 0).str() == "1.0.0");
+  assert(sv(0, 0, 1).to_string() == "0.0.1");
+  assert(sv(0, 1, 0).to_string() == "0.1.0");
+  assert(sv(1, 0, 0).to_string() == "1.0.0");
 
   auto v = sv(1, 0, 0);
 
   v.prerelease_identifiers = "a";
   v.build_metadata = "";
-  assert(v.str() == "1.0.0-a");
+  assert(v.to_string() == "1.0.0-a");
 
   v.prerelease_identifiers = "";
   v.build_metadata = "b";
-  assert(v.str() == "1.0.0+b");
+  assert(v.to_string() == "1.0.0+b");
 
   v.prerelease_identifiers = "a";
   v.build_metadata = "b";
-  assert(v.str() == "1.0.0-a+b");
+  assert(v.to_string() == "1.0.0-a+b");
 }
 
 void test_parse() {
