@@ -95,7 +95,7 @@ void Version::Increment(NumericIdentifier id, unsigned long n) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CompareResult Version::Compare(const Version& version) const {
+Version::CompareResult Version::Compare(const Version& version) const {
   // Major, minor, and patch versions are compared numerically
   if (major != version.major)
     return major < version.major ? kLessThan : kGreaterThan;
@@ -173,6 +173,25 @@ bool Version::Parse(const std::string& version) {
     build_metadata = match[5].str();
 
   return true;
+}
+
+bool operator==(const Version& lhs, const Version& rhs) {
+  return lhs.Compare(rhs) == Version::kEqualTo;
+}
+bool operator!=(const Version& lhs, const Version& rhs) {
+  return lhs.Compare(rhs) != Version::kEqualTo;
+}
+bool operator<(const Version& lhs, const Version& rhs) {
+  return lhs.Compare(rhs) == Version::kLessThan;
+}
+bool operator>(const Version& lhs, const Version& rhs) {
+  return lhs.Compare(rhs) == Version::kGreaterThan;
+}
+bool operator<=(const Version& lhs, const Version& rhs) {
+  return lhs.Compare(rhs) != Version::kGreaterThan;
+}
+bool operator>=(const Version& lhs, const Version& rhs) {
+  return lhs.Compare(rhs) != Version::kLessThan;
 }
 
 }  // namespace semaver

@@ -25,9 +25,6 @@ SOFTWARE.
 #pragma once
 
 #include <string>
-#include <vector>
-
-#include "comparable.h"
 
 namespace semaver {
 
@@ -40,8 +37,14 @@ const std::string regex_pattern{
 };
 
 // Semantic Versioning 2.0.0 - http://semver.org
-class Version : public Comparable<Version> {
+class Version {
 public:
+  enum CompareResult {
+    kLessThan = -1,
+    kEqualTo = 0,
+    kGreaterThan = 1,
+  };
+
   enum NumericIdentifier {
     kMajor,
     kMinor,
@@ -58,6 +61,8 @@ public:
   operator std::string() const;
   std::string str() const;
 
+  CompareResult Compare(const Version& version) const;
+
   // Increments given numeric identifier by given number, and resets lesser
   // identifiers to 0.
   void Increment(NumericIdentifier id, unsigned long n = 1);
@@ -70,8 +75,14 @@ public:
   std::string build_metadata;
 
 private:
-  CompareResult Compare(const Version& version) const;
   bool Parse(const std::string& version);
 };
+
+bool operator==(const Version& lhs, const Version& rhs);
+bool operator!=(const Version& lhs, const Version& rhs);
+bool operator< (const Version& lhs, const Version& rhs);
+bool operator> (const Version& lhs, const Version& rhs);
+bool operator<=(const Version& lhs, const Version& rhs);
+bool operator>=(const Version& lhs, const Version& rhs);
 
 }  // namespace semaver
