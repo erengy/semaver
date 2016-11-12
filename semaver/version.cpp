@@ -26,7 +26,6 @@ SOFTWARE.
 #include <regex>
 #include <vector>
 
-#include "string.h"
 #include "version.h"
 
 namespace semaver {
@@ -56,9 +55,9 @@ Version::operator std::string() const {
 
 std::string Version::str() const {
   // A normal version number MUST take the form X.Y.Z
-  std::string version = NumberToString(major) + "." +
-                        NumberToString(minor) + "." +
-                        NumberToString(patch);
+  std::string version = std::to_string(major) + "." +
+                        std::to_string(minor) + "." +
+                        std::to_string(patch);
 
   // A pre-release version MAY be denoted by appending a hyphen
   if (!prerelease_identifiers.empty())
@@ -114,28 +113,45 @@ Version::CompareResult Version::Compare(const Version& version) const {
         return kGreaterThan;
     }
 
+    auto split = [](const std::string& str, const std::string& delimiter) {
+      std::vector<std::string> output;
+      size_t offset = 0;
+      while (true) {
+        const size_t pos = str.find(delimiter, offset);
+        if (pos == std::string::npos) {
+          output.push_back(str.substr(offset));
+          break;
+        }
+        output.push_back(str.substr(offset, pos - offset));
+        offset = pos + delimiter.size();
+      }
+      return output;
+    };
+
     // Precedence for two pre-release versions MUST be determined by comparing
     // each dot separated identifier from left to right
-    const auto lhs_ids = SplitString(prerelease_identifiers, ".");
-    const auto rhs_ids = SplitString(version.prerelease_identifiers, ".");
+    const auto lhs_ids = split(prerelease_identifiers, ".");
+    const auto rhs_ids = split(version.prerelease_identifiers, ".");
 
     for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
       const auto& lhs = lhs_ids.at(i);
       const auto& rhs = rhs_ids.at(i);
 
-      const bool lhs_is_numeric = IsNumericString(lhs);
-      const bool rhs_is_numeric = IsNumericString(rhs);
+      const bool lhs_is_numeric = !lhs.empty() &&
+          std::all_of(lhs.begin(), lhs.end(), ::isdigit);
+      const bool rhs_is_numeric = !rhs.empty() &&
+          std::all_of(rhs.begin(), rhs.end(), ::isdigit);
 
       // Identifiers consisting of only digits are compared numerically
       if (lhs_is_numeric && rhs_is_numeric) {
-        const auto lhs_number = StringToNumber(lhs);
-        const auto rhs_number = StringToNumber(rhs);
+        const auto lhs_number = std::stoul(lhs);
+        const auto rhs_number = std::stoul(rhs);
         if (lhs_number != rhs_number)
           return lhs_number < rhs_number ? kLessThan : kGreaterThan;
 
       // Identifiers with letters or hyphens are compared lexically
       } else if (!lhs_is_numeric && !rhs_is_numeric) {
-        const auto result = CompareStrings(lhs, rhs);
+        const auto result = lhs.compare(rhs);
         if (result != 0)
           return result < 0 ? kLessThan : kGreaterThan;
 
@@ -162,9 +178,9 @@ bool Version::Parse(const std::string& version) {
   if (!std::regex_match(version, match, regex))
     return false;
 
-  major = StringToNumber(match[1].str());
-  minor = StringToNumber(match[2].str());
-  patch = StringToNumber(match[3].str());
+  major = std::stoul(match[1].str());
+  minor = std::stoul(match[2].str());
+  patch = std::stoul(match[3].str());
 
   if (match[4].matched)
     prerelease_identifiers = match[4].str();
