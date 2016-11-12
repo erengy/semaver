@@ -64,16 +64,7 @@ public:
     Parse(version);
   }
 
-  Version& operator=(const Version& version) {
-    major = version.major;
-    minor = version.minor;
-    patch = version.patch;
-
-    prerelease_identifiers = version.prerelease_identifiers;
-    build_metadata = version.build_metadata;
-
-    return *this;
-  }
+  Version& operator=(const Version& version) = default;
 
   operator std::string() const {
     return str();
