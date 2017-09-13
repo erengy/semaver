@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2016 Eren Okka
+Copyright (c) 2016-2017 Eren Okka
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -70,7 +70,7 @@ public:
     return to_string();
   }
 
-  std::string Version::to_string() const {
+  std::string to_string() const {
     // A normal version number MUST take the form X.Y.Z
     std::string version = std::to_string(major) + "." +
                           std::to_string(minor) + "." +
@@ -196,7 +196,7 @@ public:
   std::string build_metadata;
 
 private:
-  bool Version::Parse(const std::string& version) {
+  bool Parse(const std::string& version) {
     static const auto regex = std::regex(regex_pattern);
     std::smatch match;
 
