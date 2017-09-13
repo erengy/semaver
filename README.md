@@ -6,7 +6,7 @@
 
 ```cpp
 #include <iostream>
-#include <semaver/version.h>
+#include <semaver.hpp>
 
 using SemVer = semaver::Version;
 
@@ -22,7 +22,7 @@ int main() {
 
   if (v1 > v0) {
     // 2.0.0 is greater than 1.3.0
-    std::cout << v1.str() << " is greater than " << v0.str() << "\n";
+    std::cout << v1.to_string() << " is greater than " << v0.to_string() << "\n";
   }
 
   return 0;
