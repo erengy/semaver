@@ -31,6 +31,14 @@ SOFTWARE.
 
 namespace semaver {
 
+namespace internal {
+
+enum CompareResult {
+  kLessThan = -1,
+  kEqualTo = 0,
+  kGreaterThan = 1,
+};
+
 const std::string regex_pattern{
   "(0|[1-9][0-9]*)\\."
   "(0|[1-9][0-9]*)\\."
@@ -39,15 +47,29 @@ const std::string regex_pattern{
   "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
 };
 
+std::vector<std::string> Split(const std::string& str,
+                               const std::string& delimiter) {
+  std::vector<std::string> output;
+
+  size_t offset = 0;
+  while (true) {
+    const size_t pos = str.find(delimiter, offset);
+    if (pos == std::string::npos) {
+      output.push_back(str.substr(offset));
+      break;
+    }
+    output.push_back(str.substr(offset, pos - offset));
+    offset = pos + delimiter.size();
+  }
+
+  return output;
+};
+
+}  // namespace internal
+
 // Semantic Versioning 2.0.0 - http://semver.org
 class Version {
 public:
-  enum CompareResult {
-    kLessThan = -1,
-    kEqualTo = 0,
-    kGreaterThan = 1,
-  };
-
   enum NumericIdentifier {
     kMajor,
     kMinor,
@@ -111,7 +133,9 @@ public:
     }
   }
 
-  CompareResult Compare(const Version& version) const {
+  int Compare(const Version& version) const {
+    using namespace internal;
+
     // Major, minor, and patch versions are compared numerically
     if (major != version.major)
       return major < version.major ? kLessThan : kGreaterThan;
@@ -130,25 +154,10 @@ public:
           return kGreaterThan;
       }
 
-      auto split = [](const std::string& str, const std::string& delimiter) {
-        std::vector<std::string> output;
-        size_t offset = 0;
-        while (true) {
-          const size_t pos = str.find(delimiter, offset);
-          if (pos == std::string::npos) {
-            output.push_back(str.substr(offset));
-            break;
-          }
-          output.push_back(str.substr(offset, pos - offset));
-          offset = pos + delimiter.size();
-        }
-        return output;
-      };
-
       // Precedence for two pre-release versions MUST be determined by comparing
       // each dot separated identifier from left to right
-      const auto lhs_ids = split(prerelease_identifiers, ".");
-      const auto rhs_ids = split(version.prerelease_identifiers, ".");
+      const auto lhs_ids = Split(prerelease_identifiers, ".");
+      const auto rhs_ids = Split(version.prerelease_identifiers, ".");
 
       for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
         const auto& lhs = lhs_ids.at(i);
@@ -197,7 +206,7 @@ public:
 
 private:
   bool Parse(const std::string& version) {
-    static const auto regex = std::regex(regex_pattern);
+    static const auto regex = std::regex(internal::regex_pattern);
     std::smatch match;
 
     if (!std::regex_match(version, match, regex))
@@ -218,22 +227,22 @@ private:
 };
 
 bool operator==(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == Version::kEqualTo;
+  return lhs.Compare(rhs) == internal::kEqualTo;
 }
 bool operator!=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != Version::kEqualTo;
+  return lhs.Compare(rhs) != internal::kEqualTo;
 }
 bool operator< (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == Version::kLessThan;
+  return lhs.Compare(rhs) == internal::kLessThan;
 }
 bool operator> (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == Version::kGreaterThan;
+  return lhs.Compare(rhs) == internal::kGreaterThan;
 }
 bool operator<=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != Version::kGreaterThan;
+  return lhs.Compare(rhs) != internal::kGreaterThan;
 }
 bool operator>=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != Version::kLessThan;
+  return lhs.Compare(rhs) != internal::kLessThan;
 }
 
 }  // namespace semaver
