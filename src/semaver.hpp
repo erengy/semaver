@@ -47,19 +47,18 @@ const std::string regex_pattern{
   "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
 };
 
-std::vector<std::string> Split(const std::string& str,
-                               const std::string& delimiter) {
+std::vector<std::string> Split(const std::string& str) {
   std::vector<std::string> output;
 
   size_t offset = 0;
   while (true) {
-    const size_t pos = str.find(delimiter, offset);
+    const size_t pos = str.find('.', offset);
     if (pos == std::string::npos) {
       output.push_back(str.substr(offset));
       break;
     }
     output.push_back(str.substr(offset, pos - offset));
-    offset = pos + delimiter.size();
+    offset = pos + sizeof(char);
   }
 
   return output;
@@ -106,17 +105,17 @@ public:
 
   std::string to_string() const {
     // A normal version number MUST take the form X.Y.Z
-    std::string version = std::to_string(major) + "." +
-                          std::to_string(minor) + "." +
+    std::string version = std::to_string(major) + '.' +
+                          std::to_string(minor) + '.' +
                           std::to_string(patch);
 
     // A pre-release version MAY be denoted by appending a hyphen
     if (!prerelease.empty())
-      version += "-" + prerelease;
+      version += '-' + prerelease;
 
     // Build metadata MAY be denoted by appending a plus sign
     if (!build.empty())
-      version += "+" + build;
+      version += '+' + build;
 
     return version;
   }
@@ -168,8 +167,8 @@ public:
 
       // Precedence for two pre-release versions MUST be determined by comparing
       // each dot separated identifier from left to right
-      const auto lhs_ids = Split(prerelease, ".");
-      const auto rhs_ids = Split(version.prerelease, ".");
+      const auto lhs_ids = Split(prerelease);
+      const auto rhs_ids = Split(version.prerelease);
 
       for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
         const auto& lhs = lhs_ids.at(i);
