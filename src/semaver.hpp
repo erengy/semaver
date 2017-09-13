@@ -99,12 +99,12 @@ public:
                           std::to_string(patch);
 
     // A pre-release version MAY be denoted by appending a hyphen
-    if (!prerelease_identifiers.empty())
-      version += "-" + prerelease_identifiers;
+    if (!prerelease.empty())
+      version += "-" + prerelease;
 
     // Build metadata MAY be denoted by appending a plus sign
-    if (!build_metadata.empty())
-      version += "+" + build_metadata;
+    if (!build.empty())
+      version += "+" + build;
 
     return version;
   }
@@ -144,20 +144,20 @@ public:
     if (patch != version.patch)
       return patch < version.patch ? kLessThan : kGreaterThan;
 
-    if (prerelease_identifiers != version.prerelease_identifiers) {
+    if (prerelease != version.prerelease) {
       // A pre-release version has lower precedence than a normal version
-      if (!prerelease_identifiers.empty()) {
-        if (version.prerelease_identifiers.empty())
+      if (!prerelease.empty()) {
+        if (version.prerelease.empty())
           return kLessThan;
       } else {
-        if (!version.prerelease_identifiers.empty())
+        if (!version.prerelease.empty())
           return kGreaterThan;
       }
 
       // Precedence for two pre-release versions MUST be determined by comparing
       // each dot separated identifier from left to right
-      const auto lhs_ids = Split(prerelease_identifiers, ".");
-      const auto rhs_ids = Split(version.prerelease_identifiers, ".");
+      const auto lhs_ids = Split(prerelease, ".");
+      const auto rhs_ids = Split(version.prerelease, ".");
 
       for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
         const auto& lhs = lhs_ids.at(i);
@@ -201,8 +201,8 @@ public:
   unsigned long minor;
   unsigned long patch;
 
-  std::string prerelease_identifiers;
-  std::string build_metadata;
+  std::string prerelease;
+  std::string build;
 
 private:
   bool Parse(const std::string& version) {
@@ -217,10 +217,10 @@ private:
     patch = std::stoul(match[3].str());
 
     if (match[4].matched)
-      prerelease_identifiers = match[4].str();
+      prerelease = match[4].str();
 
     if (match[5].matched)
-      build_metadata = match[5].str();
+      build = match[5].str();
 
     return true;
   }

@@ -54,8 +54,8 @@ void test_assign() {
   auto v0 = sv(0, 0, 0);
 
   auto v1 = sv(1, 1, 1);
-  v1.prerelease_identifiers = "a";
-  v1.build_metadata = "a";
+  v1.prerelease = "a";
+  v1.build = "a";
 
   v0 = v1;
   assert(v0 == v1);
@@ -93,40 +93,40 @@ void test_compare_prerelease() {
   auto v0 = sv();
   auto v1 = sv();
 
-  v0.prerelease_identifiers = "";
-  v1.prerelease_identifiers = "a";
+  v0.prerelease = "";
+  v1.prerelease = "a";
   assert(v0 > v1);
 
-  v0.prerelease_identifiers = "a";
-  v1.prerelease_identifiers = "a";
+  v0.prerelease = "a";
+  v1.prerelease = "a";
   assert(v0 == v1);
 
-  v0.prerelease_identifiers = "0";
-  v1.prerelease_identifiers = "1";
+  v0.prerelease = "0";
+  v1.prerelease = "1";
   assert(v0 < v1);
 
-  v0.prerelease_identifiers = "a";
-  v1.prerelease_identifiers = "b";
+  v0.prerelease = "a";
+  v1.prerelease = "b";
   assert(v0 < v1);
 
-  v0.prerelease_identifiers = "0";
-  v1.prerelease_identifiers = "a";
+  v0.prerelease = "0";
+  v1.prerelease = "a";
   assert(v0 < v1);
 
-  v0.prerelease_identifiers = "0.a.0a";
-  v1.prerelease_identifiers = "0.a.0a";
+  v0.prerelease = "0.a.0a";
+  v1.prerelease = "0.a.0a";
   assert(v0 == v1);
 
-  v0.prerelease_identifiers = "0.a.0a";
-  v1.prerelease_identifiers = "1.a.0a";
+  v0.prerelease = "0.a.0a";
+  v1.prerelease = "1.a.0a";
   assert(v0 < v1);
 
-  v0.prerelease_identifiers = "0.a.0a";
-  v1.prerelease_identifiers = "0.b.0a";
+  v0.prerelease = "0.a.0a";
+  v1.prerelease = "0.b.0a";
   assert(v0 < v1);
 
-  v0.prerelease_identifiers = "0.a.0a";
-  v1.prerelease_identifiers = "0.a.0b";
+  v0.prerelease = "0.a.0a";
+  v1.prerelease = "0.a.0b";
   assert(v0 < v1);
 }
 
@@ -134,8 +134,8 @@ void test_compare_build() {
   auto v0 = sv();
   auto v1 = sv();
 
-  v0.build_metadata = "abc";
-  v1.build_metadata = "xyz";
+  v0.build = "abc";
+  v1.build = "xyz";
   assert(v0 == v1);
 }
 
@@ -203,16 +203,16 @@ void test_serialize() {
 
   auto v = sv(1, 0, 0);
 
-  v.prerelease_identifiers = "a";
-  v.build_metadata = "";
+  v.prerelease = "a";
+  v.build = "";
   assert(v.to_string() == "1.0.0-a");
 
-  v.prerelease_identifiers = "";
-  v.build_metadata = "b";
+  v.prerelease = "";
+  v.build = "b";
   assert(v.to_string() == "1.0.0+b");
 
-  v.prerelease_identifiers = "a";
-  v.build_metadata = "b";
+  v.prerelease = "a";
+  v.build = "b";
   assert(v.to_string() == "1.0.0-a+b");
 }
 
@@ -221,30 +221,30 @@ void test_parse() {
 
   assert(v == sv("1.2.3"));
 
-  v.build_metadata = "";
-  v.prerelease_identifiers = "a";
+  v.build = "";
+  v.prerelease = "a";
   assert(v == sv("1.2.3-a"));
-  v.prerelease_identifiers = "a.b";
+  v.prerelease = "a.b";
   assert(v == sv("1.2.3-a.b"));
-  v.prerelease_identifiers = "a.b.c";
+  v.prerelease = "a.b.c";
   assert(v == sv("1.2.3-a.b.c"));
 
-  v.prerelease_identifiers = "";
-  v.build_metadata = "x";
+  v.prerelease = "";
+  v.build = "x";
   assert(v == sv("1.2.3+x"));
-  v.build_metadata = "x.y";
+  v.build = "x.y";
   assert(v == sv("1.2.3+x.y"));
-  v.build_metadata = "x.y.z";
+  v.build = "x.y.z";
   assert(v == sv("1.2.3+x.y.z"));
 
-  v.prerelease_identifiers = "a";
-  v.build_metadata = "x";
+  v.prerelease = "a";
+  v.build = "x";
   assert(v == sv("1.2.3-a+x"));
-  v.prerelease_identifiers = "a.b";
-  v.build_metadata = "x.y";
+  v.prerelease = "a.b";
+  v.build = "x.y";
   assert(v == sv("1.2.3-a.b+x.y"));
-  v.prerelease_identifiers = "a.b.c";
-  v.build_metadata = "x.y.z";
+  v.prerelease = "a.b.c";
+  v.build = "x.y.z";
   assert(v == sv("1.2.3-a.b.c+x.y.z"));
 }
 
