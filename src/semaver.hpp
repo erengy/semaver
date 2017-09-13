@@ -82,6 +82,18 @@ public:
       : major(major), minor(minor), patch(patch) {
   }
 
+  Version(unsigned long major, unsigned long minor, unsigned long patch,
+          const std::string& prerelease)
+      : major(major), minor(minor), patch(patch),
+        prerelease(prerelease) {
+  }
+
+  Version(unsigned long major, unsigned long minor, unsigned long patch,
+          const std::string& prerelease, const std::string& build)
+      : major(major), minor(minor), patch(patch),
+        prerelease(prerelease), build(build) {
+  }
+
   Version(const std::string& version) {
     Parse(version);
   }
