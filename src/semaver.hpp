@@ -157,13 +157,8 @@ public:
 
     if (prerelease != version.prerelease) {
       // A pre-release version has lower precedence than a normal version
-      if (!prerelease.empty()) {
-        if (version.prerelease.empty())
-          return kLessThan;
-      } else {
-        if (!version.prerelease.empty())
-          return kGreaterThan;
-      }
+      if (version.prerelease.empty() || prerelease.empty())
+        return version.prerelease.empty() ? kLessThan : kGreaterThan;
 
       // Precedence for two pre-release versions MUST be determined by comparing
       // each dot separated identifier from left to right
