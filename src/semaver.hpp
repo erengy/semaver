@@ -47,6 +47,10 @@ const std::string regex_pattern{
   "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
 };
 
+bool IsDigits(const std::string& str) {
+  return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+};
+
 std::vector<std::string> Split(const std::string& str) {
   std::vector<std::string> output;
 
@@ -156,32 +160,28 @@ public:
       // each dot separated identifier from left to right
       const auto lhs_ids = Split(prerelease);
       const auto rhs_ids = Split(version.prerelease);
-
       for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
-        const auto& lhs = lhs_ids.at(i);
-        const auto& rhs = rhs_ids.at(i);
-
-        const bool lhs_is_numeric = !lhs.empty() &&
-            std::all_of(lhs.begin(), lhs.end(), ::isdigit);
-        const bool rhs_is_numeric = !rhs.empty() &&
-            std::all_of(rhs.begin(), rhs.end(), ::isdigit);
+        const auto& lhs_id = lhs_ids.at(i);
+        const auto& rhs_id = rhs_ids.at(i);
+        const auto lhs_is_digits = IsDigits(lhs_id);
+        const auto rhs_is_digits = IsDigits(rhs_id);
 
         // Identifiers consisting of only digits are compared numerically
-        if (lhs_is_numeric && rhs_is_numeric) {
-          const auto lhs_number = std::stoul(lhs);
-          const auto rhs_number = std::stoul(rhs);
+        if (lhs_is_digits && rhs_is_digits) {
+          const auto lhs_number = std::stoul(lhs_id);
+          const auto rhs_number = std::stoul(rhs_id);
           if (lhs_number != rhs_number)
             return lhs_number < rhs_number ? kLessThan : kGreaterThan;
 
         // Identifiers with letters or hyphens are compared lexically
-        } else if (!lhs_is_numeric && !rhs_is_numeric) {
-          const auto result = lhs.compare(rhs);
+        } else if (!lhs_is_digits && !rhs_is_digits) {
+          const auto result = lhs_id.compare(rhs_id);
           if (result != 0)
             return result < 0 ? kLessThan : kGreaterThan;
 
         // Numeric identifiers have lower precedence than non-numeric identifiers
         } else {
-          return lhs_is_numeric ? kLessThan : kGreaterThan;
+          return lhs_is_digits ? kLessThan : kGreaterThan;
         }
       }
 
