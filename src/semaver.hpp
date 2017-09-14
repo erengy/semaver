@@ -75,25 +75,17 @@ public:
     kPatch,
   };
 
-  Version() : major(0), minor(1), patch(0) {}
-
-  Version(unsigned long major, unsigned long minor, unsigned long patch)
-      : major(major), minor(minor), patch(patch) {
-  }
-
-  Version(unsigned long major, unsigned long minor, unsigned long patch,
-          const std::string& prerelease)
-      : major(major), minor(minor), patch(patch),
-        prerelease(prerelease) {
-  }
-
-  Version(unsigned long major, unsigned long minor, unsigned long patch,
-          const std::string& prerelease, const std::string& build)
+  // Default version number is 0.1.0 (non-standard)
+  Version(unsigned long major = 0,
+          unsigned long minor = 1,
+          unsigned long patch = 0,
+          const std::string& prerelease = {},
+          const std::string& build = {})
       : major(major), minor(minor), patch(patch),
         prerelease(prerelease), build(build) {
   }
 
-  Version(const std::string& version) {
+  explicit Version(const std::string& version) {
     Parse(version);
   }
 
