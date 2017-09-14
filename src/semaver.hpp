@@ -47,11 +47,11 @@ const std::string regex_pattern{
   "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
 };
 
-bool IsDigits(const std::string& str) {
+inline bool IsDigits(const std::string& str) {
   return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
 };
 
-std::vector<std::string> Split(const std::string& str) {
+inline std::vector<std::string> Split(const std::string& str) {
   std::vector<std::string> output;
 
   size_t offset = 0;
@@ -224,22 +224,22 @@ private:
   }
 };
 
-bool operator==(const Version& lhs, const Version& rhs) {
+inline bool operator==(const Version& lhs, const Version& rhs) {
   return lhs.Compare(rhs) == internal::kEqualTo;
 }
-bool operator!=(const Version& lhs, const Version& rhs) {
+inline bool operator!=(const Version& lhs, const Version& rhs) {
   return lhs.Compare(rhs) != internal::kEqualTo;
 }
-bool operator< (const Version& lhs, const Version& rhs) {
+inline bool operator< (const Version& lhs, const Version& rhs) {
   return lhs.Compare(rhs) == internal::kLessThan;
 }
-bool operator> (const Version& lhs, const Version& rhs) {
+inline bool operator> (const Version& lhs, const Version& rhs) {
   return lhs.Compare(rhs) == internal::kGreaterThan;
 }
-bool operator<=(const Version& lhs, const Version& rhs) {
+inline bool operator<=(const Version& lhs, const Version& rhs) {
   return lhs.Compare(rhs) != internal::kGreaterThan;
 }
-bool operator>=(const Version& lhs, const Version& rhs) {
+inline bool operator>=(const Version& lhs, const Version& rhs) {
   return lhs.Compare(rhs) != internal::kLessThan;
 }
 
