@@ -195,9 +195,9 @@ public:
     return kEqualTo;
   }
 
-  unsigned long major;
-  unsigned long minor;
-  unsigned long patch;
+  unsigned long major = 0;
+  unsigned long minor = 0;
+  unsigned long patch = 0;
 
   std::string prerelease;
   std::string build;
