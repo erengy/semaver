@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2016-2017 Eren Okka
+Copyright (c) 2016-2018 Eren Okka
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace semaver {
 
-namespace internal {
+namespace detail {
 
 enum CompareResult {
   kLessThan = -1,
@@ -68,7 +68,7 @@ inline std::vector<std::string> Split(const std::string& str) {
   return output;
 };
 
-}  // namespace internal
+}  // namespace detail
 
 // Semantic Versioning 2.0.0 - http://semver.org
 class Version {
@@ -141,7 +141,7 @@ public:
   }
 
   int Compare(const Version& version) const {
-    using namespace internal;
+    using namespace detail;
 
     // Major, minor, and patch versions are compared numerically
     if (major != version.major)
@@ -225,22 +225,22 @@ private:
 };
 
 inline bool operator==(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == internal::kEqualTo;
+  return lhs.Compare(rhs) == detail::kEqualTo;
 }
 inline bool operator!=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != internal::kEqualTo;
+  return lhs.Compare(rhs) != detail::kEqualTo;
 }
 inline bool operator< (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == internal::kLessThan;
+  return lhs.Compare(rhs) == detail::kLessThan;
 }
 inline bool operator> (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == internal::kGreaterThan;
+  return lhs.Compare(rhs) == detail::kGreaterThan;
 }
 inline bool operator<=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != internal::kGreaterThan;
+  return lhs.Compare(rhs) != detail::kGreaterThan;
 }
 inline bool operator>=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != internal::kLessThan;
+  return lhs.Compare(rhs) != detail::kLessThan;
 }
 
 }  // namespace semaver
