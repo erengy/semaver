@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2016-2018 Eren Okka
+Copyright (c) 2016-2019 Eren Okka
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ SOFTWARE.
 #include <algorithm>
 #include <regex>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace semaver {
@@ -39,7 +40,7 @@ enum CompareResult {
   kGreaterThan = 1,
 };
 
-const std::string regex_pattern{
+constexpr auto regex_pattern{
   "(0|[1-9][0-9]*)\\."
   "(0|[1-9][0-9]*)\\."
   "(0|[1-9][0-9]*)"
@@ -47,22 +48,24 @@ const std::string regex_pattern{
   "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
 };
 
-inline bool IsDigits(const std::string& str) {
-  return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+constexpr bool IsDigits(const std::string_view str) {
+  return !str.empty() && std::all_of(str.begin(), str.end(),
+      [](const char c) {
+        return '0' <= c && c <= '9';
+      });
 };
 
-inline std::vector<std::string> Split(const std::string& str) {
-  std::vector<std::string> output;
+inline std::vector<std::string_view> Split(std::string_view str) {
+  std::vector<std::string_view> output;
 
-  size_t offset = 0;
   while (true) {
-    const size_t pos = str.find('.', offset);
-    if (pos == std::string::npos) {
-      output.push_back(str.substr(offset));
+    const size_t pos = str.find('.');
+    if (pos == str.npos) {
+      output.emplace_back(str);
       break;
     }
-    output.push_back(str.substr(offset, pos - offset));
-    offset = pos + sizeof(char);
+    output.emplace_back(str.substr(0, pos));
+    str.remove_prefix(pos + sizeof(char));
   }
 
   return output;
@@ -83,13 +86,12 @@ public:
   Version(unsigned long major = 0,
           unsigned long minor = 1,
           unsigned long patch = 0,
-          const std::string& prerelease = {},
-          const std::string& build = {})
-      : major(major), minor(minor), patch(patch),
-        prerelease(prerelease), build(build) {
-  }
+          const std::string_view prerelease = std::string_view{},
+          const std::string_view build = std::string_view{})
+      : major{major}, minor{minor}, patch{patch},
+        prerelease{prerelease}, build{build} {}
 
-  explicit Version(const std::string& version) {
+  explicit Version(const std::string_view version) {
     Parse(version);
   }
 
@@ -118,7 +120,7 @@ public:
 
   // Increments given numeric identifier by given number, and resets lesser
   // identifiers to 0.
-  void Increment(NumericIdentifier id, unsigned long n = 1) {
+  constexpr void Increment(NumericIdentifier id, unsigned long n = 1) {
     if (n == 0)
       return;  // to avoid invalid resets
 
@@ -168,8 +170,8 @@ public:
 
         // Identifiers consisting of only digits are compared numerically
         if (lhs_is_digits && rhs_is_digits) {
-          const auto lhs_number = std::stoul(lhs_id);
-          const auto rhs_number = std::stoul(rhs_id);
+          const auto lhs_number = std::stoul(lhs_id.data());
+          const auto rhs_number = std::stoul(rhs_id.data());
           if (lhs_number != rhs_number)
             return lhs_number < rhs_number ? kLessThan : kGreaterThan;
 
@@ -203,11 +205,11 @@ public:
   std::string build;
 
 private:
-  bool Parse(const std::string& version) {
-    static const auto regex = std::regex(internal::regex_pattern);
-    std::smatch match;
+  bool Parse(const std::string_view version) {
+    static const std::regex regex{detail::regex_pattern};
+    std::cmatch match;
 
-    if (!std::regex_match(version, match, regex))
+    if (!std::regex_match(version.data(), match, regex))
       return false;
 
     major = std::stoul(match[1].str());
