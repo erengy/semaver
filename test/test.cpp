@@ -32,8 +32,8 @@ namespace {
 
 using sv = semaver::Version;
 
-constexpr auto numeric_min = std::numeric_limits<unsigned long>::min();
-constexpr auto numeric_max = std::numeric_limits<unsigned long>::max();
+constexpr auto numeric_min = std::numeric_limits<sv::numeric_id_t>::min();
+constexpr auto numeric_max = std::numeric_limits<sv::numeric_id_t>::max();
 
 ////////////////////////////////////////////////////////////////////////////////
 

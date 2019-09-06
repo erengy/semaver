@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include <algorithm>
+#include <charconv>
 #include <regex>
 #include <string>
 #include <string_view>
@@ -53,7 +54,7 @@ constexpr bool IsDigits(const std::string_view str) {
       [](const char c) {
         return '0' <= c && c <= '9';
       });
-};
+}
 
 inline std::vector<std::string_view> Split(std::string_view str) {
   std::vector<std::string_view> output;
@@ -69,13 +70,22 @@ inline std::vector<std::string_view> Split(std::string_view str) {
   }
 
   return output;
-};
+}
+
+template <typename T>
+T ToNumber(const std::string_view str) {
+  T value{0};
+  std::from_chars(str.data(), str.data() + str.size(), value, 10);
+  return value;
+}
 
 }  // namespace detail
 
-// Semantic Versioning 2.0.0 - http://semver.org
+// Semantic Versioning 2.0.0 - https://semver.org
 class Version {
 public:
+  using numeric_id_t = unsigned long;
+
   enum NumericIdentifier {
     kMajor,
     kMinor,
@@ -83,9 +93,9 @@ public:
   };
 
   // Default version number is 0.1.0 (non-standard)
-  Version(unsigned long major = 0,
-          unsigned long minor = 1,
-          unsigned long patch = 0,
+  Version(numeric_id_t major = 0,
+          numeric_id_t minor = 1,
+          numeric_id_t patch = 0,
           const std::string_view prerelease = std::string_view{},
           const std::string_view build = std::string_view{})
       : major{major}, minor{minor}, patch{patch},
@@ -120,7 +130,7 @@ public:
 
   // Increments given numeric identifier by given number, and resets lesser
   // identifiers to 0.
-  constexpr void Increment(NumericIdentifier id, unsigned long n = 1) {
+  constexpr void Increment(NumericIdentifier id, numeric_id_t n = 1) {
     if (n == 0)
       return;  // to avoid invalid resets
 
@@ -170,8 +180,8 @@ public:
 
         // Identifiers consisting of only digits are compared numerically
         if (lhs_is_digits && rhs_is_digits) {
-          const auto lhs_number = std::stoul(lhs_id.data());
-          const auto rhs_number = std::stoul(rhs_id.data());
+          const auto lhs_number = ToNumber<numeric_id_t>(lhs_id);
+          const auto rhs_number = ToNumber<numeric_id_t>(rhs_id);
           if (lhs_number != rhs_number)
             return lhs_number < rhs_number ? kLessThan : kGreaterThan;
 
@@ -197,9 +207,9 @@ public:
     return kEqualTo;
   }
 
-  unsigned long major = 0;
-  unsigned long minor = 0;
-  unsigned long patch = 0;
+  numeric_id_t major = 0;
+  numeric_id_t minor = 0;
+  numeric_id_t patch = 0;
 
   std::string prerelease;
   std::string build;
