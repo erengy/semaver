@@ -41,12 +41,14 @@ enum CompareResult {
   kGreaterThan = 1,
 };
 
+// Reference: https://semver.org/#faq
+// License: CC BY 3.0
+// Added `v?` at the beginning for convenience.
 constexpr auto regex_pattern{
-  "(0|[1-9][0-9]*)\\."
-  "(0|[1-9][0-9]*)\\."
-  "(0|[1-9][0-9]*)"
-  "(?:\\-([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
-  "(?:\\+([0-9A-Za-z\\-]+(?:\\.[0-9A-Za-z\\-]+)*))?"
+  "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)"
+  "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+  "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+  "(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
 };
 
 constexpr bool IsDigits(const std::string_view str) {
