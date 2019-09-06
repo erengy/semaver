@@ -1,8 +1,8 @@
 # Semaver
 
-*Semaver* is a C++ library for using [Semantic Versioning](http://semver.org) in your applications.
+A header-only C++ library for using [Semantic Versioning](https://semver.org) in your applications.
 
-## Example
+## Usage
 
 ```cpp
 #include <iostream>
@@ -32,4 +32,4 @@ int main() {
 
 ## License
 
-*Semaver* is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Licensed under the [MIT License](https://opensource.org/licenses/MIT).
