@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2016-2018 Eren Okka
+Copyright (c) 2016-2019 Eren Okka
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -249,6 +249,99 @@ void test_parse() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Reference: https://github.com/semver/semver.org/issues/59#issuecomment-390854010
+
+void test_valid() {
+  assert(sv("0.0.4") == sv(0, 0, 4));
+  assert(sv("1.2.3") == sv(1, 2, 3));
+  assert(sv("10.20.30") == sv(10, 20, 30));
+  assert(sv("1.1.2-prerelease+meta") == sv(1, 1, 2, "prerelease", "meta"));
+  assert(sv("1.1.2+meta") == sv(1, 1, 2, "", "meta"));
+  assert(sv("1.1.2+meta-valid") == sv(1, 1, 2, "", "meta-valid"));
+  assert(sv("1.0.0-alpha") == sv(1, 0, 0, "alpha"));
+  assert(sv("1.0.0-beta") == sv(1, 0, 0, "beta"));
+  assert(sv("1.0.0-alpha.beta") == sv(1, 0, 0, "alpha.beta"));
+  assert(sv("1.0.0-alpha.beta.1") == sv(1, 0, 0, "alpha.beta.1"));
+  assert(sv("1.0.0-alpha.1") == sv(1, 0, 0, "alpha.1"));
+  assert(sv("1.0.0-alpha0.valid") == sv(1, 0, 0, "alpha0.valid"));
+  assert(sv("1.0.0-alpha.0valid") == sv(1, 0, 0, "alpha.0valid"));
+  assert(sv("1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay") ==
+         sv(1, 0, 0, "alpha-a.b-c-somethinglong", "build.1-aef.1-its-okay"));
+  assert(sv("1.0.0-rc.1+build.1") == sv(1, 0, 0, "rc.1", "build.1"));
+  assert(sv("2.0.0-rc.1+build.123") == sv(2, 0, 0, "rc.1", "build.123"));
+  assert(sv("1.2.3-beta") == sv(1, 2, 3, "beta"));
+  assert(sv("10.2.3-DEV-SNAPSHOT") == sv(10, 2, 3, "DEV-SNAPSHOT"));
+  assert(sv("1.2.3-SNAPSHOT-123") == sv(1, 2, 3, "SNAPSHOT-123"));
+  assert(sv("1.0.0") == sv(1, 0, 0));
+  assert(sv("2.0.0") == sv(2, 0, 0));
+  assert(sv("1.1.7") == sv(1, 1, 7));
+  assert(sv("2.0.0+build.1848") == sv(2, 0, 0, "", "build.1848"));
+  assert(sv("2.0.1-alpha.1227") == sv(2, 0, 1, "alpha.1227"));
+  assert(sv("1.0.0-alpha+beta") == sv(1, 0, 0, "alpha", "beta"));
+  assert(sv("1.2.3----RC-SNAPSHOT.12.9.1--.12+788") ==
+         sv(1, 2, 3, "---RC-SNAPSHOT.12.9.1--.12", "788"));
+  assert(sv("1.2.3----R-S.12.9.1--.12+meta") ==
+         sv(1, 2, 3, "---R-S.12.9.1--.12", "meta"));
+  assert(sv("1.2.3----RC-SNAPSHOT.12.9.1--.12") ==
+         sv(1, 2, 3, "---RC-SNAPSHOT.12.9.1--.12"));
+  assert(sv("1.0.0+0.build.1-rc.10000aaa-kk-0.1") ==
+         sv(1, 0, 0, "", "0.build.1-rc.10000aaa-kk-0.1"));
+
+  // Integer constant is too large
+  /*
+  assert(sv("99999999999999999999999.999999999999999999.99999999999999999") ==
+         sv(99999999999999999999999, 999999999999999999, 99999999999999999));
+  */
+}
+
+void test_invalid() {
+  const auto invalid = sv(0, 0, 0);
+  assert(sv("") == invalid);
+  assert(sv("1") == invalid);
+  assert(sv("1.2") == invalid);
+  assert(sv("1.2.3-0123") == invalid);
+  assert(sv("1.2.3-0123.0123") == invalid);
+  assert(sv("1.1.2+.123") == invalid);
+  assert(sv("+invalid") == invalid);
+  assert(sv("-invalid") == invalid);
+  assert(sv("-invalid+invalid") == invalid);
+  assert(sv("-invalid.01") == invalid);
+  assert(sv("alpha") == invalid);
+  assert(sv("alpha.beta") == invalid);
+  assert(sv("alpha.beta.1") == invalid);
+  assert(sv("alpha.1") == invalid);
+  assert(sv("alpha+beta") == invalid);
+  assert(sv("alpha_beta") == invalid);
+  assert(sv("alpha.") == invalid);
+  assert(sv("alpha..") == invalid);
+  assert(sv("beta\\") == invalid);
+  assert(sv("1.0.0-alpha_beta") == invalid);
+  assert(sv("-alpha.") == invalid);
+  assert(sv("1.0.0-alpha..") == invalid);
+  assert(sv("1.0.0-alpha..1") == invalid);
+  assert(sv("1.0.0-alpha...1") == invalid);
+  assert(sv("1.0.0-alpha....1") == invalid);
+  assert(sv("1.0.0-alpha.....1") == invalid);
+  assert(sv("1.0.0-alpha......1") == invalid);
+  assert(sv("1.0.0-alpha.......1") == invalid);
+  assert(sv("01.1.1") == invalid);
+  assert(sv("1.01.1") == invalid);
+  assert(sv("1.1.01") == invalid);
+  assert(sv("1.2") == invalid);
+  assert(sv("1.2.3.DEV") == invalid);
+  assert(sv("1.2-SNAPSHOT") == invalid);
+  assert(sv("1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788") == invalid);
+  assert(sv("1.2-RC-SNAPSHOT") == invalid);
+  assert(sv("-1.0.3-gamma+b7718") == invalid);
+  assert(sv("+justmeta") == invalid);
+  assert(sv("9.8.7+meta+meta") == invalid);
+  assert(sv("9.8.7-whatever+meta+meta") == invalid);
+  assert(sv("99999999999999999999999.999999999999999999.99999999999999999"
+            "----RC-SNAPSHOT.12.09.1--------------------------------..12") ==
+         invalid);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void test_all() {
   test_initialize();
@@ -265,6 +358,9 @@ void test_all() {
 
   test_serialize();
   test_parse();
+
+  test_valid();
+  test_invalid();
 
   std::cout << "Passed all tests!\n";
 }
