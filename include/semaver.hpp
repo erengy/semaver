@@ -74,10 +74,10 @@ class Version {
 public:
   using numeric_id_t = unsigned long;
 
-  enum NumericIdentifier {
-    kMajor,
-    kMinor,
-    kPatch,
+  enum class NumericId {
+    Major,
+    Minor,
+    Patch,
   };
 
   // Default version number is 0.1.0 (non-standard)
@@ -114,23 +114,23 @@ public:
 
   // Increments given numeric identifier by given number, and resets lesser
   // identifiers to 0.
-  constexpr void increment(NumericIdentifier id, numeric_id_t n = 1) {
+  constexpr void increment(NumericId id, numeric_id_t n = 1) {
     if (n == 0)
       return;  // to avoid invalid resets
 
     switch (id) {
       // Patch and minor version MUST be reset to 0 when major version is
       // incremented
-      case kMajor:
+      case NumericId::Major:
         major += n; minor = 0; patch = 0;
         break;
 
       // Patch version MUST be reset to 0 when minor version is incremented
-      case kMinor:
+      case NumericId::Minor:
         minor += n; patch = 0;
         break;
 
-      case kPatch:
+      case NumericId::Patch:
         patch += n;
         break;
     }
