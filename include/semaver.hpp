@@ -89,6 +89,10 @@ public:
 
   Version& operator=(const Version& version) = default;
 
+  explicit operator bool() const {
+    return major || minor || patch;  // anything but 0.0.0
+  }
+
   std::string to_string() const noexcept {
     // A normal version number MUST take the form X.Y.Z
     std::string version = std::to_string(major) + '.' +

@@ -295,50 +295,48 @@ void test_valid() {
 }
 
 void test_invalid() {
-  const auto invalid = sv(0, 0, 0);
-  assert(sv("") == invalid);
-  assert(sv("1") == invalid);
-  assert(sv("1.2") == invalid);
-  assert(sv("1.2.3-0123") == invalid);
-  assert(sv("1.2.3-0123.0123") == invalid);
-  assert(sv("1.1.2+.123") == invalid);
-  assert(sv("+invalid") == invalid);
-  assert(sv("-invalid") == invalid);
-  assert(sv("-invalid+invalid") == invalid);
-  assert(sv("-invalid.01") == invalid);
-  assert(sv("alpha") == invalid);
-  assert(sv("alpha.beta") == invalid);
-  assert(sv("alpha.beta.1") == invalid);
-  assert(sv("alpha.1") == invalid);
-  assert(sv("alpha+beta") == invalid);
-  assert(sv("alpha_beta") == invalid);
-  assert(sv("alpha.") == invalid);
-  assert(sv("alpha..") == invalid);
-  assert(sv("beta\\") == invalid);
-  assert(sv("1.0.0-alpha_beta") == invalid);
-  assert(sv("-alpha.") == invalid);
-  assert(sv("1.0.0-alpha..") == invalid);
-  assert(sv("1.0.0-alpha..1") == invalid);
-  assert(sv("1.0.0-alpha...1") == invalid);
-  assert(sv("1.0.0-alpha....1") == invalid);
-  assert(sv("1.0.0-alpha.....1") == invalid);
-  assert(sv("1.0.0-alpha......1") == invalid);
-  assert(sv("1.0.0-alpha.......1") == invalid);
-  assert(sv("01.1.1") == invalid);
-  assert(sv("1.01.1") == invalid);
-  assert(sv("1.1.01") == invalid);
-  assert(sv("1.2") == invalid);
-  assert(sv("1.2.3.DEV") == invalid);
-  assert(sv("1.2-SNAPSHOT") == invalid);
-  assert(sv("1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788") == invalid);
-  assert(sv("1.2-RC-SNAPSHOT") == invalid);
-  assert(sv("-1.0.3-gamma+b7718") == invalid);
-  assert(sv("+justmeta") == invalid);
-  assert(sv("9.8.7+meta+meta") == invalid);
-  assert(sv("9.8.7-whatever+meta+meta") == invalid);
-  assert(sv("99999999999999999999999.999999999999999999.99999999999999999"
-            "----RC-SNAPSHOT.12.09.1--------------------------------..12") ==
-         invalid);
+  assert(!sv(""));
+  assert(!sv("1"));
+  assert(!sv("1.2"));
+  assert(!sv("1.2.3-0123"));
+  assert(!sv("1.2.3-0123.0123"));
+  assert(!sv("1.1.2+.123"));
+  assert(!sv("+invalid"));
+  assert(!sv("-invalid"));
+  assert(!sv("-invalid+invalid"));
+  assert(!sv("-invalid.01"));
+  assert(!sv("alpha"));
+  assert(!sv("alpha.beta"));
+  assert(!sv("alpha.beta.1"));
+  assert(!sv("alpha.1"));
+  assert(!sv("alpha+beta"));
+  assert(!sv("alpha_beta"));
+  assert(!sv("alpha."));
+  assert(!sv("alpha.."));
+  assert(!sv("beta\\"));
+  assert(!sv("1.0.0-alpha_beta"));
+  assert(!sv("-alpha."));
+  assert(!sv("1.0.0-alpha.."));
+  assert(!sv("1.0.0-alpha..1"));
+  assert(!sv("1.0.0-alpha...1"));
+  assert(!sv("1.0.0-alpha....1"));
+  assert(!sv("1.0.0-alpha.....1"));
+  assert(!sv("1.0.0-alpha......1"));
+  assert(!sv("1.0.0-alpha.......1"));
+  assert(!sv("01.1.1"));
+  assert(!sv("1.01.1"));
+  assert(!sv("1.1.01"));
+  assert(!sv("1.2"));
+  assert(!sv("1.2.3.DEV"));
+  assert(!sv("1.2-SNAPSHOT"));
+  assert(!sv("1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788"));
+  assert(!sv("1.2-RC-SNAPSHOT"));
+  assert(!sv("-1.0.3-gamma+b7718"));
+  assert(!sv("+justmeta"));
+  assert(!sv("9.8.7+meta+meta"));
+  assert(!sv("9.8.7-whatever+meta+meta"));
+  assert(!sv("99999999999999999999999.999999999999999999.99999999999999999"
+             "----RC-SNAPSHOT.12.09.1--------------------------------..12"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
