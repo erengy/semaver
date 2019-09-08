@@ -41,12 +41,12 @@ constexpr int equal = 0;
 constexpr int greater = 1;
 };
 
-constexpr bool is_digits(const std::string_view str) {
+constexpr bool is_digits(const std::string_view str) noexcept {
   return !str.empty() && std::all_of(str.begin(), str.end(),
       [](const char c) { return '0' <= c && c <= '9'; });
 }
 
-inline std::vector<std::string_view> split(std::string_view str) {
+inline std::vector<std::string_view> split(std::string_view str) noexcept {
   std::vector<std::string_view> output;
   while (true) {
     const auto pos = str.find('.');
@@ -61,7 +61,7 @@ inline std::vector<std::string_view> split(std::string_view str) {
 }
 
 template <typename T>
-constexpr T to_number(const std::string_view str) {
+constexpr T to_number(const std::string_view str) noexcept {
   T value{0};
   std::from_chars(str.data(), str.data() + str.size(), value, 10);
   return value;
@@ -79,17 +79,17 @@ public:
           numeric_id_t minor = 1,
           numeric_id_t patch = 0,
           const std::string_view prerelease = std::string_view{},
-          const std::string_view build = std::string_view{})
+          const std::string_view build = std::string_view{}) noexcept
       : major{major}, minor{minor}, patch{patch},
         prerelease{prerelease}, build{build} {}
 
-  explicit Version(const std::string_view version) {
+  explicit Version(const std::string_view version) noexcept {
     parse(version);
   }
 
   Version& operator=(const Version& version) = default;
 
-  std::string to_string() const {
+  std::string to_string() const noexcept {
     // A normal version number MUST take the form X.Y.Z
     std::string version = std::to_string(major) + '.' +
                           std::to_string(minor) + '.' +
@@ -106,20 +106,20 @@ public:
     return version;
   }
 
-  constexpr void increment_major(const numeric_id_t n = 1) {
+  constexpr void increment_major(const numeric_id_t n = 1) noexcept {
     // Patch and minor version MUST be reset to 0 when major version is
     // incremented
     if (n) major += n; minor = 0; patch = 0;
   }
-  constexpr void increment_minor(const numeric_id_t n = 1) {
+  constexpr void increment_minor(const numeric_id_t n = 1) noexcept {
     // Patch version MUST be reset to 0 when minor version is incremented
     if (n) minor += n; patch = 0;
   }
-  constexpr void increment_patch(const numeric_id_t n = 1) {
+  constexpr void increment_patch(const numeric_id_t n = 1) noexcept {
     if (n) patch += n;
   }
 
-  int compare(const Version& version) const {
+  int compare(const Version& version) const noexcept {
     using namespace detail;
 
     // Major, minor, and patch versions are compared numerically
@@ -181,7 +181,7 @@ public:
   std::string build;
 
 private:
-  bool parse(const std::string_view version) {
+  bool parse(const std::string_view version) noexcept {
     // Reference: https://semver.org/#faq
     // License: CC BY 3.0
     // Added `v?` at the beginning for convenience.
@@ -211,22 +211,22 @@ private:
   }
 };
 
-inline bool operator==(const Version& lhs, const Version& rhs) {
+inline bool operator==(const Version& lhs, const Version& rhs) noexcept {
   return lhs.compare(rhs) == detail::cmp::equal;
 }
-inline bool operator!=(const Version& lhs, const Version& rhs) {
+inline bool operator!=(const Version& lhs, const Version& rhs) noexcept {
   return lhs.compare(rhs) != detail::cmp::equal;
 }
-inline bool operator< (const Version& lhs, const Version& rhs) {
+inline bool operator< (const Version& lhs, const Version& rhs) noexcept {
   return lhs.compare(rhs) == detail::cmp::less;
 }
-inline bool operator> (const Version& lhs, const Version& rhs) {
+inline bool operator> (const Version& lhs, const Version& rhs) noexcept {
   return lhs.compare(rhs) == detail::cmp::greater;
 }
-inline bool operator<=(const Version& lhs, const Version& rhs) {
+inline bool operator<=(const Version& lhs, const Version& rhs) noexcept {
   return lhs.compare(rhs) != detail::cmp::greater;
 }
-inline bool operator>=(const Version& lhs, const Version& rhs) {
+inline bool operator>=(const Version& lhs, const Version& rhs) noexcept {
   return lhs.compare(rhs) != detail::cmp::less;
 }
 
