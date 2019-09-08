@@ -41,18 +41,15 @@ constexpr int equal = 0;
 constexpr int greater = 1;
 };
 
-constexpr bool IsDigits(const std::string_view str) {
+constexpr bool is_digits(const std::string_view str) {
   return !str.empty() && std::all_of(str.begin(), str.end(),
-      [](const char c) {
-        return '0' <= c && c <= '9';
-      });
+      [](const char c) { return '0' <= c && c <= '9'; });
 }
 
-inline std::vector<std::string_view> Split(std::string_view str) {
+inline std::vector<std::string_view> split(std::string_view str) {
   std::vector<std::string_view> output;
-
   while (true) {
-    const size_t pos = str.find('.');
+    const auto pos = str.find('.');
     if (pos == str.npos) {
       output.emplace_back(str);
       break;
@@ -60,12 +57,11 @@ inline std::vector<std::string_view> Split(std::string_view str) {
     output.emplace_back(str.substr(0, pos));
     str.remove_prefix(pos + sizeof(char));
   }
-
   return output;
 }
 
 template <typename T>
-T ToNumber(const std::string_view str) {
+constexpr T to_number(const std::string_view str) {
   T value{0};
   std::from_chars(str.data(), str.data() + str.size(), value, 10);
   return value;
@@ -94,7 +90,7 @@ public:
         prerelease{prerelease}, build{build} {}
 
   explicit Version(const std::string_view version) {
-    Parse(version);
+    parse(version);
   }
 
   Version& operator=(const Version& version) = default;
@@ -118,7 +114,7 @@ public:
 
   // Increments given numeric identifier by given number, and resets lesser
   // identifiers to 0.
-  constexpr void Increment(NumericIdentifier id, numeric_id_t n = 1) {
+  constexpr void increment(NumericIdentifier id, numeric_id_t n = 1) {
     if (n == 0)
       return;  // to avoid invalid resets
 
@@ -140,7 +136,7 @@ public:
     }
   }
 
-  int Compare(const Version& version) const {
+  int compare(const Version& version) const {
     using namespace detail;
 
     // Major, minor, and patch versions are compared numerically
@@ -158,18 +154,18 @@ public:
 
       // Precedence for two pre-release versions MUST be determined by comparing
       // each dot separated identifier from left to right
-      const auto lhs_ids = Split(prerelease);
-      const auto rhs_ids = Split(version.prerelease);
+      const auto lhs_ids = split(prerelease);
+      const auto rhs_ids = split(version.prerelease);
       for (size_t i = 0; i < std::min(lhs_ids.size(), rhs_ids.size()); ++i) {
         const auto& lhs_id = lhs_ids.at(i);
         const auto& rhs_id = rhs_ids.at(i);
-        const auto lhs_is_digits = IsDigits(lhs_id);
-        const auto rhs_is_digits = IsDigits(rhs_id);
+        const auto lhs_is_digits = is_digits(lhs_id);
+        const auto rhs_is_digits = is_digits(rhs_id);
 
         // Identifiers consisting of only digits are compared numerically
         if (lhs_is_digits && rhs_is_digits) {
-          const auto lhs_number = ToNumber<numeric_id_t>(lhs_id);
-          const auto rhs_number = ToNumber<numeric_id_t>(rhs_id);
+          const auto lhs_number = to_number<numeric_id_t>(lhs_id);
+          const auto rhs_number = to_number<numeric_id_t>(rhs_id);
           if (lhs_number != rhs_number)
             return lhs_number < rhs_number ? cmp::less : cmp::greater;
 
@@ -198,12 +194,11 @@ public:
   numeric_id_t major = 0;
   numeric_id_t minor = 0;
   numeric_id_t patch = 0;
-
   std::string prerelease;
   std::string build;
 
 private:
-  bool Parse(const std::string_view version) {
+  bool parse(const std::string_view version) {
     // Reference: https://semver.org/#faq
     // License: CC BY 3.0
     // Added `v?` at the beginning for convenience.
@@ -219,9 +214,9 @@ private:
     if (!std::regex_match(version.data(), match, regex))
       return false;
 
-    major = std::stoul(match[1].str());
-    minor = std::stoul(match[2].str());
-    patch = std::stoul(match[3].str());
+    major = detail::to_number<numeric_id_t>(match[1].str());
+    minor = detail::to_number<numeric_id_t>(match[2].str());
+    patch = detail::to_number<numeric_id_t>(match[3].str());
 
     if (match[4].matched)
       prerelease = match[4].str();
@@ -234,22 +229,22 @@ private:
 };
 
 inline bool operator==(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == detail::cmp::equal;
+  return lhs.compare(rhs) == detail::cmp::equal;
 }
 inline bool operator!=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != detail::cmp::equal;
+  return lhs.compare(rhs) != detail::cmp::equal;
 }
 inline bool operator< (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == detail::cmp::less;
+  return lhs.compare(rhs) == detail::cmp::less;
 }
 inline bool operator> (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == detail::cmp::greater;
+  return lhs.compare(rhs) == detail::cmp::greater;
 }
 inline bool operator<=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != detail::cmp::greater;
+  return lhs.compare(rhs) != detail::cmp::greater;
 }
 inline bool operator>=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != detail::cmp::less;
+  return lhs.compare(rhs) != detail::cmp::less;
 }
 
 }  // namespace semaver
