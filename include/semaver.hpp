@@ -78,8 +78,8 @@ public:
   Version(numeric_id_t major = 0,
           numeric_id_t minor = 1,
           numeric_id_t patch = 0,
-          const std::string_view prerelease = std::string_view{},
-          const std::string_view build = std::string_view{}) noexcept
+          std::string_view prerelease = std::string_view{},
+          std::string_view build = std::string_view{}) noexcept
       : major{major}, minor{minor}, patch{patch},
         prerelease{prerelease}, build{build} {}
 
@@ -154,8 +154,7 @@ public:
 
         // Identifiers with letters or hyphens are compared lexically
         } else if (!lhs_is_digits && !rhs_is_digits) {
-          const auto result = lhs_id.compare(rhs_id);
-          if (result != 0)
+          if (const auto result = lhs_id.compare(rhs_id))
             return result < 0 ? cmp::less : cmp::greater;
 
         // Numeric identifiers have lower precedence than non-numeric identifiers
@@ -200,10 +199,8 @@ private:
     major = detail::to_number<numeric_id_t>(match[1].str());
     minor = detail::to_number<numeric_id_t>(match[2].str());
     patch = detail::to_number<numeric_id_t>(match[3].str());
-
     if (match[4].matched)
       prerelease = match[4].str();
-
     if (match[5].matched)
       build = match[5].str();
 
