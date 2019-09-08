@@ -144,53 +144,53 @@ void test_compare_build() {
 void test_increment_single() {
   auto v = sv(0, 0, 0);
 
-  v.increment(sv::NumericId::Patch);
+  v.increment_patch();
   assert(v == sv(0, 0, 1));
 
-  v.increment(sv::NumericId::Minor);
+  v.increment_minor();
   assert(v == sv(0, 1, 0));
 
-  v.increment(sv::NumericId::Patch);
+  v.increment_patch();
   assert(v == sv(0, 1, 1));
 
-  v.increment(sv::NumericId::Major);
+  v.increment_major();
   assert(v == sv(1, 0, 0));
 }
 
 void test_increment_multi() {
   auto v = sv(0, 0, 0);
 
-  v.increment(sv::NumericId::Patch, 2);
+  v.increment_patch(2);
   assert(v == sv(0, 0, 2));
 
-  v.increment(sv::NumericId::Minor, 3);
+  v.increment_minor(3);
   assert(v == sv(0, 3, 0));
 
-  v.increment(sv::NumericId::Patch, 4);
+  v.increment_patch(4);
   assert(v == sv(0, 3, 4));
 
-  v.increment(sv::NumericId::Major, 5);
+  v.increment_major(5);
   assert(v == sv(5, 0, 0));
 }
 
 void test_increment_limits() {
   auto v = sv(0, 0, 0);
 
-  v.increment(sv::NumericId::Major, numeric_min);
-  v.increment(sv::NumericId::Minor, numeric_min);
-  v.increment(sv::NumericId::Patch, numeric_min);
+  v.increment_major(numeric_min);
+  v.increment_minor(numeric_min);
+  v.increment_patch(numeric_min);
   assert(v == sv(0, 0, 0));
 
-  v.increment(sv::NumericId::Major, numeric_max);
-  v.increment(sv::NumericId::Minor, numeric_max);
-  v.increment(sv::NumericId::Patch, numeric_max);
+  v.increment_major(numeric_max);
+  v.increment_minor(numeric_max);
+  v.increment_patch(numeric_max);
   assert(v == sv(numeric_max, numeric_max, numeric_max));
 
-  v.increment(sv::NumericId::Patch, 1);
+  v.increment_patch(1);
   assert(v == sv(numeric_max, numeric_max, 0));
-  v.increment(sv::NumericId::Minor, 1);
+  v.increment_minor(1);
   assert(v == sv(numeric_max, 0, 0));
-  v.increment(sv::NumericId::Major, 1);
+  v.increment_major(1);
   assert(v == sv(0, 0, 0));
 }
 
