@@ -1,6 +1,6 @@
 # Semaver
 
-A header-only C++ library for using [Semantic Versioning](https://semver.org) in your applications.
+A single-header C++ library for using [Semantic Versioning](https://semver.org) in your applications.
 
 ## Usage
 
@@ -8,26 +8,23 @@ A header-only C++ library for using [Semantic Versioning](https://semver.org) in
 #include <iostream>
 #include <semaver.hpp>
 
-using SemVer = semaver::Version;
+using Version = semaver::Version;
 
 int main() {
-  auto v0 = SemVer();  // 0.1.0 by default
-  auto v1 = SemVer(1, 2, 3);
-  auto v2 = SemVer("2.0.0");
-  auto v3 = SemVer("3.0.0-beta+2016.10.16");
+  auto v = Version();    // 0.1.0
+  v = Version(1, 2, 3);  // 0.1.0 → 1.2.3
+  v.increment_major();   // 1.2.3 → 2.0.0
 
-  v0 = v1;  // 0.1.0 -> 1.2.3
-  v0.increment_minor();  // 1.2.3 -> 1.3.0 (patch is reset to 0)
-  v1.increment_major();  // 1.2.3 -> 2.0.0 (minor & patch are reset to 0)
+  if (v > Version("2.0.0-beta")) {  // 2.0.0 > 2.0.0-beta
+    std::cout << v.to_string() << " > 2.0.0-beta\n";
+  }
 
-  if (v1 > v0) {
-    // 2.0.0 is greater than 1.3.0
-    std::cout << v1.to_string() << " is greater than " << v0.to_string() << "\n";
+  if (auto v = Version("x.y.z"); !v) {
+    std::cout << "Invalid version\n";
   }
 
   return 0;
 }
-
 ```
 
 ## License
