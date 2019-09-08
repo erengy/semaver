@@ -109,10 +109,6 @@ public:
 
   Version& operator=(const Version& version) = default;
 
-  operator std::string() const {
-    return to_string();
-  }
-
   std::string to_string() const {
     // A normal version number MUST take the form X.Y.Z
     std::string version = std::to_string(major) + '.' +
