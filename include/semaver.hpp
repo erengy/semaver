@@ -41,16 +41,6 @@ enum CompareResult {
   kGreaterThan = 1,
 };
 
-// Reference: https://semver.org/#faq
-// License: CC BY 3.0
-// Added `v?` at the beginning for convenience.
-constexpr auto regex_pattern{
-  "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)"
-  "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)"
-  "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
-  "(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
-};
-
 constexpr bool IsDigits(const std::string_view str) {
   return !str.empty() && std::all_of(str.begin(), str.end(),
       [](const char c) {
@@ -214,7 +204,16 @@ public:
 
 private:
   bool Parse(const std::string_view version) {
-    static const std::regex regex{detail::regex_pattern};
+    // Reference: https://semver.org/#faq
+    // License: CC BY 3.0
+    // Added `v?` at the beginning for convenience.
+    constexpr auto regex_pattern =
+        "^v?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)"
+        "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+        "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+        "(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$";
+
+    static const std::regex regex{regex_pattern};
     std::cmatch match;
 
     if (!std::regex_match(version.data(), match, regex))
