@@ -35,10 +35,10 @@ namespace semaver {
 
 namespace detail {
 
-enum CompareResult {
-  kLessThan = -1,
-  kEqualTo = 0,
-  kGreaterThan = 1,
+namespace cmp {
+constexpr int less = -1;
+constexpr int equal = 0;
+constexpr int greater = 1;
 };
 
 constexpr bool IsDigits(const std::string_view str) {
@@ -145,16 +145,16 @@ public:
 
     // Major, minor, and patch versions are compared numerically
     if (major != version.major)
-      return major < version.major ? kLessThan : kGreaterThan;
+      return major < version.major ? cmp::less : cmp::greater;
     if (minor != version.minor)
-      return minor < version.minor ? kLessThan : kGreaterThan;
+      return minor < version.minor ? cmp::less : cmp::greater;
     if (patch != version.patch)
-      return patch < version.patch ? kLessThan : kGreaterThan;
+      return patch < version.patch ? cmp::less : cmp::greater;
 
     if (prerelease != version.prerelease) {
       // A pre-release version has lower precedence than a normal version
       if (version.prerelease.empty() || prerelease.empty())
-        return version.prerelease.empty() ? kLessThan : kGreaterThan;
+        return version.prerelease.empty() ? cmp::less : cmp::greater;
 
       // Precedence for two pre-release versions MUST be determined by comparing
       // each dot separated identifier from left to right
@@ -171,28 +171,28 @@ public:
           const auto lhs_number = ToNumber<numeric_id_t>(lhs_id);
           const auto rhs_number = ToNumber<numeric_id_t>(rhs_id);
           if (lhs_number != rhs_number)
-            return lhs_number < rhs_number ? kLessThan : kGreaterThan;
+            return lhs_number < rhs_number ? cmp::less : cmp::greater;
 
         // Identifiers with letters or hyphens are compared lexically
         } else if (!lhs_is_digits && !rhs_is_digits) {
           const auto result = lhs_id.compare(rhs_id);
           if (result != 0)
-            return result < 0 ? kLessThan : kGreaterThan;
+            return result < 0 ? cmp::less : cmp::greater;
 
         // Numeric identifiers have lower precedence than non-numeric identifiers
         } else {
-          return lhs_is_digits ? kLessThan : kGreaterThan;
+          return lhs_is_digits ? cmp::less : cmp::greater;
         }
       }
 
       // A larger set of pre-release fields has a higher precedence than a
       // smaller set
       if (lhs_ids.size() != rhs_ids.size())
-        return lhs_ids.size() < rhs_ids.size() ? kLessThan : kGreaterThan;
+        return lhs_ids.size() < rhs_ids.size() ? cmp::less : cmp::greater;
     }
 
     // Build metadata SHOULD be ignored when determining version precedence
-    return kEqualTo;
+    return cmp::equal;
   }
 
   numeric_id_t major = 0;
@@ -234,22 +234,22 @@ private:
 };
 
 inline bool operator==(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == detail::kEqualTo;
+  return lhs.Compare(rhs) == detail::cmp::equal;
 }
 inline bool operator!=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != detail::kEqualTo;
+  return lhs.Compare(rhs) != detail::cmp::equal;
 }
 inline bool operator< (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == detail::kLessThan;
+  return lhs.Compare(rhs) == detail::cmp::less;
 }
 inline bool operator> (const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) == detail::kGreaterThan;
+  return lhs.Compare(rhs) == detail::cmp::greater;
 }
 inline bool operator<=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != detail::kGreaterThan;
+  return lhs.Compare(rhs) != detail::cmp::greater;
 }
 inline bool operator>=(const Version& lhs, const Version& rhs) {
-  return lhs.Compare(rhs) != detail::kLessThan;
+  return lhs.Compare(rhs) != detail::cmp::less;
 }
 
 }  // namespace semaver
