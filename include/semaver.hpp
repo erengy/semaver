@@ -89,7 +89,7 @@ public:
 
   Version& operator=(const Version& version) = default;
 
-  explicit operator bool() const {
+  explicit operator bool() const noexcept {
     return major || minor || patch;  // anything but 0.0.0
   }
 
