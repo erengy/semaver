@@ -113,14 +113,14 @@ public:
   constexpr void increment_major(const numeric_id_t n = 1) noexcept {
     // Patch and minor version MUST be reset to 0 when major version is
     // incremented
-    if (n) major += n; minor = 0; patch = 0;
+    if (n) { major += n; minor = 0; patch = 0; }
   }
   constexpr void increment_minor(const numeric_id_t n = 1) noexcept {
     // Patch version MUST be reset to 0 when minor version is incremented
-    if (n) minor += n; patch = 0;
+    if (n) { minor += n; patch = 0; }
   }
   constexpr void increment_patch(const numeric_id_t n = 1) noexcept {
-    if (n) patch += n;
+    if (n) { patch += n; }
   }
 
   int compare(const Version& version) const noexcept {

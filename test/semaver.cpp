@@ -141,6 +141,19 @@ void test_compare_build() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void test_increment_none() {
+  auto v = sv(1, 1, 1);
+
+  v.increment_patch(0);
+  assert(v == sv(1, 1, 1));
+
+  v.increment_minor(0);
+  assert(v == sv(1, 1, 1));
+
+  v.increment_major(0);
+  assert(v == sv(1, 1, 1));
+}
+
 void test_increment_single() {
   auto v = sv(0, 0, 0);
 
@@ -350,6 +363,7 @@ void test_all() {
   test_compare_prerelease();
   test_compare_build();
 
+  test_increment_none();
   test_increment_single();
   test_increment_multi();
   test_increment_limits();
