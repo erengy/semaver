@@ -233,6 +233,7 @@ void test_parse() {
   auto v = sv(1, 2, 3);
 
   assert(v == sv("1.2.3"));
+  assert(v == sv("v1.2.3"));
 
   v.build = "";
   v.prerelease = "a";
